@@ -1,7 +1,11 @@
-torch
-torchvision
-torchaudio
+datasets
+jupyter
+librosa
 matplotlib
 numpy
-jupyter
 ruff
+soundfile
+torch
+torchaudio
+torchvision
+transformers

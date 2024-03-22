@@ -1,3 +1,5 @@
+.PHONY: venv format clean
+
 venv:
 	python -m venv venv
 	venv/bin/pip install --upgrade pip
@@ -5,3 +7,6 @@ venv:
 
 format:
 	venv/bin/ruff format *.py
+
+clean:
+	rm -rf venv
