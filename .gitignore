@@ -1,4 +1,5 @@
 venv/*
+voxceleb1/
 
 ### Default .gitignore file for Jupyter projects
 .ipynb_checkpoints

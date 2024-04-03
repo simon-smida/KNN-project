@@ -1,7 +1,7 @@
-torch
-torchvision
-torchaudio
+jupyter
 matplotlib
 numpy
-jupyter
 ruff
+torch
+torchaudio
+torchvision
