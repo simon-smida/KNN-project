@@ -4,4 +4,3 @@ numpy
 ruff
 torch
 torchaudio
-torchvision
