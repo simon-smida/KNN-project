@@ -1,3 +1,5 @@
+.PHONY: venv format download_voxceleb clean
+
 venv:
 	python -m venv venv
 	venv/bin/pip install --upgrade pip
@@ -8,3 +10,6 @@ format:
 
 download_voxceleb:
 	venv/bin/python -c "import logging; from datasets.voxceleb1 import VoxCeleb1; logging.basicConfig(level=logging.INFO); VoxCeleb1.load(split='all')"
+
+clean:
+	rm -rf venv/
