@@ -1,5 +1,4 @@
 git+https://github.com/speechbrain/speechbrain.git@develop # Pre-trained baseline ECAPA-TDNN model
-jupyter
 matplotlib
 numpy
 ruff
@@ -7,4 +6,3 @@ scikit-learn
 transformers
 torch
 torchaudio
-torchvision
