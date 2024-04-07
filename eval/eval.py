@@ -33,6 +33,9 @@ def evaluate_on_voxceleb1(
             left_embedding = get_normalized_embeddings(left, feature_extractor, model)
             right_embedding = get_normalized_embeddings(right, feature_extractor, model)
 
+            left_embedding = left_embedding.to(device)
+            right_embedding = right_embedding.to(device)
+
             distance = similarity_fn(left_embedding, right_embedding)
             labels.append(t)
             scores.append(distance.item())
