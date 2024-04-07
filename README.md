@@ -38,6 +38,11 @@ curve. It will also print the EER (Equal Error Rate) value to stdout.
 |-----------------------------------|--------|--------|
 | speechbrain/spkrec-ecapa-voxceleb | 1.04 % |        |
 
+## Acknowledgements
+
+Computational resources were provided by the e-INFRA CZ project (ID:90254),
+supported by the Ministry of Education, Youth and Sports of the Czech Republic.
+
 ## License
 
 Files `datasets/voxceleb1_metadata.csv` and `datasets/voxceleb1_veri_test.txt` contain VoxCeleb metadata,
