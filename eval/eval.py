@@ -17,29 +17,29 @@ def get_normalized_embeddings(inp, feature_extractor, model):
     return embeddings
 
 
+@torch.no_grad()
 def evaluate_on_voxceleb1(
     model, feature_extractor, similarity_fn, first_n=None, device=torch.device("cpu")
 ):
     model = model.to(device)
     dataset = VoxCeleb1.load(split="test")
 
-    with torch.no_grad():
-        with open(SCORES_FILENAME, "w") as f:
-            i = 0
-            scores = []
-            labels = []
-            for t, left, right in dataset.test_iter():
-                i += 1
-                left_embedding = get_normalized_embeddings(left, feature_extractor, model)
-                right_embedding = get_normalized_embeddings(right, feature_extractor, model)
+    with open(SCORES_FILENAME, "w") as f:
+        i = 0
+        scores = []
+        labels = []
+        for t, left, right in dataset.test_iter():
+            i += 1
+            left_embedding = get_normalized_embeddings(left, feature_extractor, model)
+            right_embedding = get_normalized_embeddings(right, feature_extractor, model)
 
-                distance = similarity_fn(left_embedding, right_embedding)
-                labels.append(t)
-                scores.append(distance.item())
-                f.write(f"{t} {distance.item()}\n")
+            distance = similarity_fn(left_embedding, right_embedding)
+            labels.append(t)
+            scores.append(distance.item())
+            f.write(f"{t} {distance.item()}\n")
 
-                if first_n is not None and i >= first_n:
-                    break
+            if first_n is not None and i >= first_n:
+                break
 
     labels = np.array(labels)
     scores = np.array(scores)
