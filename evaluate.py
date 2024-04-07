@@ -1,3 +1,5 @@
+import logging
+
 import torch
 from transformers import Wav2Vec2FeatureExtractor, WavLMForXVector
 from speechbrain.inference.speaker import EncoderClassifier
@@ -35,6 +37,10 @@ def get_normalized_embeddings_speechbrain(inp, model):
 
 
 if __name__ == "__main__":
+    logging.basicConfig(level=logging.INFO)
+    logger = logging.getLogger(__name__)
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
     model_name = MODEL_NAME
     if model_name == "microsoft/wavlm-base-sv":
         # Pre-trained WavLM + x-vector head model trained with an Additive Margin Softmax loss.
@@ -42,15 +48,18 @@ if __name__ == "__main__":
         model = WavLMForXVector.from_pretrained(model_name)
         get_embeddings = get_normalized_embeddings_wavlm
     elif model_name == "speechbrain/spkrec-ecapa-voxceleb":
-        model = EncoderClassifier.from_hparams(source="speechbrain/spkrec-ecapa-voxceleb")
+        model = EncoderClassifier.from_hparams(
+            source="speechbrain/spkrec-ecapa-voxceleb", run_opts={"device": device}
+        )
         get_embeddings = get_normalized_embeddings_speechbrain
     else:
         raise Exception("Unknown model name.")
 
     similarity = torch.nn.CosineSimilarity(dim=-1)
 
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    labels, scores = evaluate_on_voxceleb1(model, get_embeddings, similarity, FIRST_N, device)
+    labels, scores = evaluate_on_voxceleb1(
+        model, get_embeddings, similarity, logger, FIRST_N, device
+    )
     fpr, fnr, thresholds = plot_det_curve(
         labels, scores, filename="det_curve.png", model_name=model_name
     )

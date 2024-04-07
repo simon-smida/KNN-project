@@ -12,8 +12,19 @@ DEFAULT_DET_FILENAME = "det_curve.png"
 
 @torch.no_grad()
 def evaluate_on_voxceleb1(
-    model, get_embeddings, similarity_fn, first_n=None, device=torch.device("cpu")
+    model, get_embeddings, similarity_fn, logger, first_n=None, device=torch.device("cpu")
 ):
+    """
+    Evaluate the model on the VoxCeleb1 test split.
+
+    :param model: model to evaluate
+    :param get_embeddings: function taking model input and model as arguments and returning embeddings
+    :param similarity_fn: function to compute similarity between two embeddings
+    :param logger: logger instance
+    :param first_n: how many samples to evaluate on (if None -> evaluate on the whole test split)
+    :param device: should you use GPU for evaluation?
+    :return:
+    """
     model = model.eval()
     model = model.to(device)
     dataset = VoxCeleb1.load(split="test")
@@ -34,6 +45,9 @@ def evaluate_on_voxceleb1(
             labels.append(t)
             scores.append(distance.item())
             f.write(f"{t} {distance.item()}\n")
+
+            if i % 500 == 0:
+                logger.info(f"Processed {i} samples.")
 
             if first_n is not None and i >= first_n:
                 break
