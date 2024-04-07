@@ -10,17 +10,11 @@ SCORES_FILENAME = "scores.txt"
 DEFAULT_DET_FILENAME = "det_curve.png"
 
 
-def get_normalized_embeddings(inp, feature_extractor, model):
-    features = feature_extractor(inp, return_tensors="pt", sampling_rate=16000)
-    embeddings = model(**features).embeddings
-    embeddings = torch.nn.functional.normalize(embeddings, dim=-1).cpu()
-    return embeddings
-
-
 @torch.no_grad()
 def evaluate_on_voxceleb1(
-    model, feature_extractor, similarity_fn, first_n=None, device=torch.device("cpu")
+    model, get_embeddings, similarity_fn, first_n=None, device=torch.device("cpu")
 ):
+    model = model.eval()
     model = model.to(device)
     dataset = VoxCeleb1.load(split="test")
 
@@ -30,8 +24,8 @@ def evaluate_on_voxceleb1(
         labels = []
         for t, left, right in dataset.test_iter():
             i += 1
-            left_embedding = get_normalized_embeddings(left, feature_extractor, model)
-            right_embedding = get_normalized_embeddings(right, feature_extractor, model)
+            left_embedding = get_embeddings(left, model)
+            right_embedding = get_embeddings(right, model)
 
             left_embedding = left_embedding.to(device)
             right_embedding = right_embedding.to(device)
