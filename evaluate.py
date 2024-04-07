@@ -1,4 +1,5 @@
 import logging
+import os
 
 import numpy as np
 import torch
@@ -9,7 +10,7 @@ from eval.eval import evaluate_on_voxceleb1, plot_det_curve, calculate_eer, calc
 
 # When running on less powerful devices, it might be helpful to evaluate on a smaller number of samples
 FIRST_N = None
-MODEL_NAME = "speechbrain/spkrec-ecapa-voxceleb"
+MODEL_NAME = os.getenv("KNN_MODEL", default="speechbrain/spkrec-ecapa-voxceleb")
 
 
 def print_eer(eer, thr):
