@@ -32,6 +32,9 @@ for local development).
 The script will create two files: `scores.txt` with scores for each pair of recordings and `det_curve.png` with DET 
 curve. It will also print the EER (Equal Error Rate) value to stdout.
 
+If you want to evaluate (or perform any other computation) on Metacentrum infrastructure, check out scripts 
+in [metacentrum/](metacentrum/) directory.
+
 ### Results
 
 | Model                             | EER    | minCDF   |
