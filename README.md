@@ -38,6 +38,8 @@ curve. It will also print the EER (Equal Error Rate) value to stdout.
 |-----------------------------------|--------|--------|
 | speechbrain/spkrec-ecapa-voxceleb | 1.04 % |        |
 
+![speechbrain/spkrec-ecapa-voxceleb](docs/speechbrain-spkrec-ecapa-voxceleb-det.png)
+
 ## Acknowledgements
 
 Computational resources were provided by the e-INFRA CZ project (ID:90254),
