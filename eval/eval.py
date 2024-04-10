@@ -1,6 +1,7 @@
 import numpy as np
 import torch
 
+from speechbrain.utils.metric_stats import minDCF
 from sklearn import metrics
 import matplotlib.pyplot as plt
 
@@ -84,3 +85,18 @@ def calculate_eer(fpr, fnr, thresholds):
     eer = fpr[index]
 
     return eer, eer_threshold
+
+
+def calculate_minDCF(scores, labels) -> (float, float):
+    """
+    Calculate the minimum Detection Cost Function (minDCF) for the given scores and labels.
+    :param scores: np.array of scores
+    :param labels: np.array of either 0 or 1 (floats)
+    :return: c_min and threshold
+    """
+    positives = scores[np.where(labels == 1)]
+    negatives = scores[np.where(labels == 0)]
+
+    # p_target, c_false_alarm, and c_miss are taken from the official Voxceleb 2021 website
+    # https://www.robots.ox.ac.uk/~vgg/data/voxceleb/competition2021.html
+    return minDCF(positives, negatives, p_target=0.05, c_miss=1, c_fa=1)

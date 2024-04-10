@@ -1,9 +1,11 @@
 import logging
 
+import numpy as np
 import torch
 from transformers import Wav2Vec2FeatureExtractor, WavLMForXVector
 from speechbrain.inference.speaker import EncoderClassifier
-from eval.eval import evaluate_on_voxceleb1, plot_det_curve, calculate_eer
+
+from eval.eval import evaluate_on_voxceleb1, plot_det_curve, calculate_eer, calculate_minDCF
 
 # When running on less powerful devices, it might be helpful to evaluate on a smaller number of samples
 FIRST_N = None
@@ -12,6 +14,13 @@ MODEL_NAME = "speechbrain/spkrec-ecapa-voxceleb"
 
 def print_eer(eer, thr):
     msg = f"Model achieves EER = {eer} at threshold {thr}"
+    if FIRST_N is not None:
+        msg += f" on the first {FIRST_N} samples of the test split."
+    print(msg)
+
+
+def print_minDCF(c, thr):
+    msg = f"Model achieves minDCF = {c} at threshold {thr}"
     if FIRST_N is not None:
         msg += f" on the first {FIRST_N} samples of the test split."
     print(msg)
@@ -64,4 +73,6 @@ if __name__ == "__main__":
         labels, scores, filename="det_curve.png", model_name=model_name
     )
     eer, thr = calculate_eer(fpr, fnr, thresholds)
+    c_min, c_threshold = calculate_minDCF(torch.tensor(scores), torch.tensor(labels))
     print_eer(eer, thr)
+    print_minDCF(c_min, c_threshold)
