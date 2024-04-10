@@ -34,9 +34,11 @@ curve. It will also print the EER (Equal Error Rate) value to stdout.
 
 ### Results
 
-| Model                             | EER    | minCDF |
-|-----------------------------------|--------|--------|
-| speechbrain/spkrec-ecapa-voxceleb | 1.04 % |        |
+| Model                             | EER    | minCDF   |
+|-----------------------------------|--------|----------|
+| speechbrain/spkrec-ecapa-voxceleb | 1.04 % | 0.0036 * |
+
+`*`: this might be wrong, as I'd expect numbers around 0.06
 
 ![speechbrain/spkrec-ecapa-voxceleb](docs/speechbrain-spkrec-ecapa-voxceleb-det.png)
 
