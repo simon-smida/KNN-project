@@ -13,7 +13,7 @@ MODEL_NAME = "speechbrain/spkrec-ecapa-voxceleb"
 
 
 def print_eer(eer, thr):
-    msg = f"Model achieves EER = {eer} at threshold {thr}"
+    msg = f"Model achieves EER = {eer / 100}% at threshold {thr}"
     if FIRST_N is not None:
         msg += f" on the first {FIRST_N} samples of the test split."
     print(msg)
