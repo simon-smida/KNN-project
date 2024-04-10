@@ -32,6 +32,12 @@ for local development).
 The script will create two files: `scores.txt` with scores for each pair of recordings and `det_curve.png` with DET 
 curve. It will also print the EER (Equal Error Rate) value to stdout.
 
+### Results
+
+| Model                             | EER    | minCDF |
+|-----------------------------------|--------|--------|
+| speechbrain/spkrec-ecapa-voxceleb | 1.04 % |        |
+
 ## License
 
 Files `datasets/voxceleb1_metadata.csv` and `datasets/voxceleb1_veri_test.txt` contain VoxCeleb metadata,
