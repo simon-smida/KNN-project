@@ -43,6 +43,8 @@ in [metacentrum/](metacentrum/) directory.
 
 `*`: this might be wrong, as I'd expect numbers around 0.06
 
+#### DET curve:
+
 ![speechbrain/spkrec-ecapa-voxceleb](docs/speechbrain-spkrec-ecapa-voxceleb-det.png)
 
 ## Acknowledgements
