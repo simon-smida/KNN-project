@@ -51,10 +51,3 @@ in [metacentrum/](metacentrum/) directory.
 
 Computational resources were provided by the e-INFRA CZ project (ID:90254),
 supported by the Ministry of Education, Youth and Sports of the Czech Republic.
-
-## License
-
-Files `datasets/voxceleb1_metadata.csv` and `datasets/voxceleb1_veri_test.txt` contain VoxCeleb metadata,
-which are licensed under a Creative Commons Attribution-ShareAlike 4.0 International License.
-
-The rest of the code is licensed under MIT license, if not in collision with the VoxCeleb licensing.
