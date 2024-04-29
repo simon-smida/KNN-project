@@ -1,4 +1,4 @@
-.PHONY: venv format download_voxceleb clean
+.PHONY: venv format download_voxceleb clean train
 
 venv:
 	python -m venv venv
@@ -13,6 +13,9 @@ download_voxceleb:
 
 evaluate:
 	venv/bin/python evaluate.py
+
+train:
+	venv/bin/python train_ecapa.py
 
 clean:
 	rm -rf venv/
