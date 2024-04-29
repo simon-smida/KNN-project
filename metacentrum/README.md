@@ -18,7 +18,7 @@ cd knn && git switch <branch> && cd ..
 
 ```
 # Train with args:      branch walltime batch_size dataset_dir
-bash knn/metacentrum/train yo "5:00:00" 32 /storage/brno12-cerit/home/tichavskym/voxceleb1
+bash knn/metacentrum/train yo "5:00:00" 16 /storage/brno12-cerit/home/tichavskym/voxceleb1
 
 # Evaluate the model
 bash knn/metacentrum/evaluate meta "speechbrain/spkrec-ecapa-voxceleb" "2:00:00"
