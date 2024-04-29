@@ -10,7 +10,7 @@ Angular Softmax Loss).
 To create a virtual environment with all the necessary dependencies, run `make venv`. To use it,
 run `source venv/bin/activate`.
 
-For other helpful targets (such as formatting, launching scripts), see [Makefile](Makefile).
+For other helpful targets (such as formatting, launching scripts, ...), see [Makefile](Makefile).
 
 ## Dataset
 
@@ -36,7 +36,7 @@ in [metacentrum/](metacentrum/) directory.
 
 ### Results
 
-| Model                             | EER    | minCDF   |
+| Model                             | EER    | minDCF   |
 |-----------------------------------|--------|----------|
 | speechbrain/spkrec-ecapa-voxceleb | 1.04 % | 0.0036 * |
 
