@@ -97,6 +97,7 @@ if __name__ == "__main__":
                 f"Iteration {iteration}, average loss: {loss_acc / VIEW_STEP}, prediction accuracy "
                 f"{hits_acc / (VIEW_STEP * BATCH_SIZE)}"
             )
+            print(f"Used GPU memory {torch.cuda.memory_allocated() / 1024 ** 3} GB")
             loss_acc = 0
             hits_acc = 0
 

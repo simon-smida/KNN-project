@@ -32,7 +32,7 @@ printf "GIT BRANCH:         %s\n" "$GIT_BRANCH"
 printf "\-----------------------------------------------------------\n"
 
 # Long-term storage
-export STORAGE_HOME="$HOME/$PBS_O_LOGNAME"
+export STORAGE_HOME=/storage/brno12-cerit/home/$PBS_O_LOGNAME
 export RES_DIR="$STORAGE_HOME/results"
 mkdir -p "$RES_DIR"
 # DATASETS_DIR="$STORAGE_HOME/datasets/"
