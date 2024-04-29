@@ -6,14 +6,12 @@ from torch.utils.data import default_collate
 from torchaudio.datasets import VoxCeleb1Identification
 from torch.utils.data import DataLoader
 
+from common.common import DATASET_DIR
 from models.ecapa import ECAPA_TDNN, Classifier
 from speechbrain.lobes.features import Fbank
 from speechbrain.processing.features import InputNormalization
 from speechbrain.nnet.losses import LogSoftmaxWrapper, AdditiveAngularMargin
 
-DATASET_DIR = Path(os.getenv("KNN_DATASET_DIR", default="voxceleb1"))
-DATASET_DIR.mkdir(parents=True, exist_ok=True)
-DOWNLOAD_DATASET = True if os.getenv("KNN_DOWNLOAD_DATASET", default="False") == "True" else False
 BATCH_SIZE = int(os.getenv("KNN_BATCH_SIZE", default=4))
 MODEL_DIR = Path(os.getenv("KNN_MODEL_DIR", default="experiments/models"))
 MODEL_DIR.mkdir(parents=True, exist_ok=True)
@@ -54,7 +52,7 @@ if __name__ == "__main__":
     device_str = "cuda" if torch.cuda.is_available() else "cpu"
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-    voxceleb1 = VoxCeleb1Identification(root=DATASET_DIR, subset='train', download=DOWNLOAD_DATASET)
+    voxceleb1 = VoxCeleb1Identification(root=DATASET_DIR, subset='train')
     train_dataloader = DataLoader(voxceleb1, batch_size=BATCH_SIZE, shuffle=True, collate_fn=collate_with_padding)
 
     model = ECAPA_TDNN(input_size=80, lin_neurons=192, device=device_str)

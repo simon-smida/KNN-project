@@ -15,12 +15,11 @@ For other helpful targets (such as formatting, launching scripts), see [Makefile
 ## Dataset
 
 For training and evaluation, we are using the VoxCeleb dataset. This dataset takes around 30GB and can be downloaded
-manually using `make download-voxceleb` target. This will save the dataset into `voxceleb1` directory relative 
-to project root. Because it needs to be unzipped first, you should have at least 70GB of free space available before 
-downloading. Note that the dataset is downloaded from the unofficial Hugging face repo, as it is not possible anymore 
-to download it from [the official website](http://www.robots.ox.ac.uk/~vgg/data/voxceleb/) anymore.
+using `make download-voxceleb` target. This will save the dataset into `voxceleb1` directory relative
+to project root (the path can be changed by setting `KNN_DATASET_DIR` environment variable).
 
-For code, see `datasets/` directory.
+On Metacentrum, I have pre-downloaded this dataset into my home directory at
+`/storage/brno12-cerit/home/tichavskym/voxceleb1`.
 
 ## Model evaluation
 

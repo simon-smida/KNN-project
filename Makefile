@@ -8,8 +8,8 @@ venv:
 format:
 	venv/bin/ruff format datasets/*.py eval/*.py *.py
 
-download_voxceleb:
-	venv/bin/python -c "import logging; from datasets.voxceleb1 import VoxCeleb1; logging.basicConfig(level=logging.INFO); VoxCeleb1.load(split='all')"
+download-voxceleb:
+	venv/bin/python -c "from common.common import download_voxceleb; download_voxceleb()"
 
 evaluate:
 	venv/bin/python evaluate.py
