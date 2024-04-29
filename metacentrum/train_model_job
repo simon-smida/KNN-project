@@ -1,0 +1,72 @@
+#!/usr/bin/env bash
+
+# The source code of this file is based on the file available at:
+# https://github.com/bakajstep/KNN_Project2024/blob/main/metacetrum_scripts/ner_train.sh
+# from author David Chocholatý (https://github.com/davidchocholaty)
+#
+# which in turn is based on the following file:
+#
+# Source web: GitHub
+# Link to the source: https://github.com/roman-janik/diploma_thesis_program/blob/main/ner/train_ner_model.sh
+# Author: Roman Janík (https://github.com/roman-janik)
+
+#PBS -N batch_job_knn
+#PBS -q gpu
+#PBS -l select=1:ncpus=2:ngpus=1:gpu_mem=20gb:mem=20gb:scratch_local=30gb
+#PBS -j oe
+#PBS -m ae
+
+# -j oe ... standard error stream of the job will be merged with the standard output stream
+# -m ae ...  mail is sent when the job aborts or terminates
+
+echo "just before clean_scratch"
+# Clean the SCRATCH directory upon the job termination
+trap 'clean_scratch' TERM EXIT
+
+printf "\-----------------------------------------------------------\n"
+printf "JOB ID:             %s\n" "$PBS_JOBID"
+printf "JOB NAME:           %s\n" "$PBS_JOBNAME"
+printf "JOB SERVER NODE:    %s\n" "$HOSTNAME"
+printf "START TIME:         %s\n" "$(date +%Y-%m-%d-%H-%M)"
+printf "GIT BRANCH:         %s\n" "$GIT_BRANCH"
+printf "\-----------------------------------------------------------\n"
+
+# Long-term storage
+export STORAGE_HOME="$HOME/$PBS_O_LOGNAME"
+export RES_DIR="$STORAGE_HOME/results"
+mkdir -p "$RES_DIR"
+# DATASETS_DIR="$STORAGE_HOME/datasets/"
+# HOSTNAME=$(hostname -f)  # hostname of local machine
+
+# SCRATCH directory used during computation for temporary files
+cd "$SCRATCHDIR" || exit 2
+
+# clean the SCRATCH directory
+clean_scratch
+
+mkdir tmp
+
+echo "Cloning the repository..."
+export REPO_URL="https://github.com/simon-smida/KNN-project/"
+git clone "$REPO_URL" knn
+cd knn || exit 2
+git switch "$GIT_BRANCH"
+
+echo "Preparing the environment..."
+source /cvmfs/software.metacentrum.cz/modulefiles/5.1.0/loadmodules
+module load python
+python -m venv venv
+source ./venv/bin/activate
+pip install --upgrade pip
+TMPDIR="../tmp" pip install torch==2.0.0 --extra-index-url https://download.pytorch.org/whl/cu113 -r requirements.txt
+
+echo "Starting the training..."
+make train
+
+output_dir="$RES_DIR/train-$(date +%Y-%m-%d-%H-%M)"
+echo "Saving the results into the storage directory $output_dir"
+mkdir -p "$output_dir/models"
+mv experiments/models/* "$output_dir/models"
+
+# Clean the SCRATCH directory
+clean_scratch
