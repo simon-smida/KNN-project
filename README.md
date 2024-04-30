@@ -24,12 +24,17 @@ On Metacentrum, I have pre-downloaded this dataset into my home directory at
 ## Model evaluation
 
 Model evaluation can be executed using `make evaluate` target. This will launches [evaluate.py](evaluate.py) script,
-which evaluates the model on the VoxCeleb test set. Check this script to see which model is being evaluated, and also
-if the testing dataset split is not limited to first few samples (which can be done via `FIRST_N` variable - helpful
-for local development).
+which evaluates the model on the VoxCeleb test set. This script can be parametrized using environment variables, namely
 
-The script will create two files: `scores.txt` with scores for each pair of recordings and `det_curve.png` with DET 
-curve. It will also print the EER (Equal Error Rate) value to stdout.
+- `KNN_MODEL` to choose which model to evaluate, either `microsoft/wavlm-base-sv`, `speechbrain/spkrec-ecapa-voxceleb`,
+    or `ecapa-tdnn`,
+- `KNN_MODEL_FILENAME` if `KNN_MODEL` is set to `ecapa-tdnn`, this variable contains the path to the model file with
+    weights and biases. This file should be in a `state_dict` format,
+- `EVAL_FIRST` when debugging, this variable can be set to number of samples to evaluate (when unset,
+    evaluates on the whole verification set).
+
+The script will create two files in `experimets/{scores, det}` with scores for each pair of recordings and DET 
+curve for the model. It will also print the EER (Equal Error Rate) value to stdout.
 
 If you want to evaluate (or perform any other computation) on Metacentrum infrastructure, check out scripts 
 in [metacentrum/](metacentrum/) directory.
