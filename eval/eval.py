@@ -3,12 +3,15 @@ import torch
 
 from speechbrain.utils.metric_stats import minDCF
 from sklearn import metrics
+from torchaudio.datasets import VoxCeleb1Verification
 import matplotlib.pyplot as plt
 
-from datasets.voxceleb1 import VoxCeleb1
+from common.common import DATASET_DIR
+from torch.utils.data import DataLoader
 
-SCORES_FILENAME = "scores.txt"
-DEFAULT_DET_FILENAME = "det_curve.png"
+# TODO make sure parent dir exists
+SCORES_FILENAME = "experiments/scores/scores.txt"
+DEFAULT_DET_FILENAME = "experiments/det/curve.png"
 
 
 @torch.no_grad()
@@ -28,13 +31,15 @@ def evaluate_on_voxceleb1(
     """
     model = model.eval()
     model = model.to(device)
-    dataset = VoxCeleb1.load(split="test")
+    dataset = VoxCeleb1Verification(root=DATASET_DIR, download=False)
+    train_dataloader = DataLoader(dataset)
 
     with open(SCORES_FILENAME, "w") as f:
         i = 0
         scores = []
         labels = []
-        for t, left, right in dataset.test_iter():
+        for left, right, sr, t, _, _ in train_dataloader:
+            assert sr == 16000
             i += 1
             left_embedding = get_embeddings(left, model)
             right_embedding = get_embeddings(right, model)
@@ -43,7 +48,7 @@ def evaluate_on_voxceleb1(
             right_embedding = right_embedding.to(device)
 
             distance = similarity_fn(left_embedding, right_embedding)
-            labels.append(t)
+            labels.append(t.item())
             scores.append(distance.item())
             f.write(f"{t} {distance.item()}\n")
 

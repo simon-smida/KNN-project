@@ -8,9 +8,9 @@ from torch.utils.data import DataLoader
 
 from common.common import DATASET_DIR
 from models.ecapa import ECAPA_TDNN, Classifier
-from speechbrain.lobes.features import Fbank
-from speechbrain.processing.features import InputNormalization
 from speechbrain.nnet.losses import LogSoftmaxWrapper, AdditiveAngularMargin
+
+from models.preprocess import get_spectrum_feats
 
 BATCH_SIZE = int(os.getenv("KNN_BATCH_SIZE", default=4))
 MODEL_OUT_DIR = Path(os.getenv("KNN_MODEL_OUT_DIR", default="experiments/models"))
@@ -35,14 +35,6 @@ def collate_with_padding(batch):
         new_batch.append((tensor, sr, speaker_id, filename))
         lengths.append(tensor.shape[1] / max_length)
     return default_collate(new_batch), torch.tensor(lengths)
-
-
-def get_spectrum_feats(wavs: torch.Tensor, legths: torch.Tensor):
-    features = [fbank(wav) for wav in wavs]
-    x = torch.stack(features, dim=0).squeeze(dim=1)
-    x = torch.transpose(x, 1, 2)
-    x = mean_var_norm(x, lengths)
-    return torch.transpose(x, 1, 2)
 
 
 if __name__ == "__main__":
@@ -75,8 +67,6 @@ if __name__ == "__main__":
         optimizer.load_state_dict(torch.load(MODEL_IN_DIR / "optimizer.state_dict", map_location=device))
 
     criterion = LogSoftmaxWrapper(AdditiveAngularMargin(margin=0.2, scale=30))
-    fbank = Fbank(n_mels=80, left_frames=0, right_frames=0, deltas=False)
-    mean_var_norm = InputNormalization(norm_type="sentence", std_norm=False)
 
     print(f"Starting training with batch size {BATCH_SIZE} and {NOF_EPOCHS} epochs...")
     for epoch in range(NOF_EPOCHS):
