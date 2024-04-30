@@ -12,5 +12,6 @@ KNN_BATCH_SIZE="$3"
 KNN_DATASET_DIR="$4"
 
 # -v list of environment variables to be given to the job
+# Specify variable KNN_MODEL_IN_DIR if you start training from a saved checkpoint model
 qsub -v GIT_BRANCH="$GIT_BRANCH",KNN_BATCH_SIZE="$KNN_BATCH_SIZE",KNN_DATASET_DIR="$KNN_DATASET_DIR",KNN_DOWNLOAD_DATASET=True \
   -l walltime="$WALLTIME" ./"$(dirname "$0")"/train_model_job
