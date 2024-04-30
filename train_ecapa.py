@@ -30,7 +30,7 @@ def collate_with_padding(batch):
     max_length = max([(b[0].shape[1]) for b in batch])
     new_batch = []
     lengths = []
-    for (tensor, sr, speaker_id, filename) in batch:
+    for tensor, sr, speaker_id, filename in batch:
         tensor = torch.nn.functional.pad(tensor, (0, max_length - tensor.shape[1]))
         new_batch.append((tensor, sr, speaker_id, filename))
         lengths.append(tensor.shape[1] / max_length)
@@ -45,8 +45,10 @@ if __name__ == "__main__":
     device_str = "cuda" if torch.cuda.is_available() else "cpu"
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-    voxceleb1 = VoxCeleb1Identification(root=DATASET_DIR, subset='train')
-    train_dataloader = DataLoader(voxceleb1, batch_size=BATCH_SIZE, shuffle=True, collate_fn=collate_with_padding)
+    voxceleb1 = VoxCeleb1Identification(root=DATASET_DIR, subset="train")
+    train_dataloader = DataLoader(
+        voxceleb1, batch_size=BATCH_SIZE, shuffle=True, collate_fn=collate_with_padding
+    )
 
     model = ECAPA_TDNN(input_size=80, lin_neurons=192, device=device_str)
     classify = Classifier(input_size=192, lin_neurons=192, out_neurons=1252)
@@ -54,17 +56,25 @@ if __name__ == "__main__":
     if MODEL_IN_DIR is not None:
         MODEL_IN_DIR = Path(MODEL_IN_DIR)
         print(f"Loading models from {MODEL_IN_DIR}...")
-        model.load_state_dict(torch.load(MODEL_IN_DIR / "ecapa_tdnn.state_dict", map_location=device))
-        classify.load_state_dict(torch.load(MODEL_IN_DIR / "classifier.state_dict", map_location=device))
+        model.load_state_dict(
+            torch.load(MODEL_IN_DIR / "ecapa_tdnn.state_dict", map_location=device)
+        )
+        classify.load_state_dict(
+            torch.load(MODEL_IN_DIR / "classifier.state_dict", map_location=device)
+        )
 
     model.to(device)
     model.train()
     classify.to(device)
     classify.train()
 
-    optimizer = torch.optim.Adam(list(model.parameters()) + list(classify.parameters()), lr=0.001, weight_decay=0.000002)
+    optimizer = torch.optim.Adam(
+        list(model.parameters()) + list(classify.parameters()), lr=0.001, weight_decay=0.000002
+    )
     if MODEL_IN_DIR is not None:
-        optimizer.load_state_dict(torch.load(MODEL_IN_DIR / "optimizer.state_dict", map_location=device))
+        optimizer.load_state_dict(
+            torch.load(MODEL_IN_DIR / "optimizer.state_dict", map_location=device)
+        )
 
     criterion = LogSoftmaxWrapper(AdditiveAngularMargin(margin=0.2, scale=30))
 
