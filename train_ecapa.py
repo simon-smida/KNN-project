@@ -17,6 +17,7 @@ MODEL_OUT_DIR = Path(os.getenv("KNN_MODEL_OUT_DIR", default="experiments/models"
 MODEL_OUT_DIR.mkdir(parents=True, exist_ok=True)
 DEBUG = True if os.getenv("KNN_DEBUG", default="False") == "True" else False
 MODEL_IN_DIR = os.getenv("KNN_MODEL_IN_DIR", default=None)
+NOF_EPOCHS = int(os.getenv("KNN_NOF_EPOCHS", default=10))
 
 
 VIEW_STEP = 50
@@ -80,42 +81,44 @@ if __name__ == "__main__":
     iteration = 0
     loss_acc = 0
     hits_acc = 0
-    print(f"Starting training with batch size {BATCH_SIZE}...")
-    for batch, lengths in train_dataloader:
-        iteration += 1
+    print(f"Starting training with batch size {BATCH_SIZE} and {NOF_EPOCHS} epochs...")
+    for epoch in range(NOF_EPOCHS):
+        print(f"Epoch {epoch + 1}")
+        for batch, lengths in train_dataloader:
+            iteration += 1
 
-        x = get_spectrum_feats(batch[0], lengths).to(device)
-        batch_labels = batch[2].unsqueeze(1).to(device)
-        lengths.to(device)
+            x = get_spectrum_feats(batch[0], lengths).to(device)
+            batch_labels = batch[2].unsqueeze(1).to(device)
+            lengths.to(device)
 
-        optimizer.zero_grad()
+            optimizer.zero_grad()
 
-        outputs = model(x)
-        cls_out = classify(outputs)
+            outputs = model(x)
+            cls_out = classify(outputs)
 
-        loss = criterion(cls_out, batch_labels)
-        loss.backward()  # Compute gradients
-        optimizer.step()
+            loss = criterion(cls_out, batch_labels)
+            loss.backward()  # Compute gradients
+            optimizer.step()
 
-        # Compute stats
-        loss_acc += loss.item()
-        _, pred_labels = torch.max(outputs, 2)
-        hits_acc += torch.eq(batch_labels, pred_labels).max().item()
+            # Compute stats
+            loss_acc += loss.item()
+            _, pred_labels = torch.max(outputs, 2)
+            hits_acc += torch.eq(batch_labels, pred_labels).max().item()
 
-        # Print stats
-        if iteration % VIEW_STEP == 0:
-            print(
-                f"Iteration {iteration}, average loss: {loss_acc / VIEW_STEP}, prediction accuracy "
-                f"{hits_acc / (VIEW_STEP * BATCH_SIZE)}"
-            )
-            print(f"Used GPU memory {torch.cuda.memory_allocated() / 1024 ** 3} GB")
-            loss_acc = 0
-            hits_acc = 0
+            # Print stats
+            if iteration % VIEW_STEP == 0:
+                print(
+                    f"Iteration {iteration}, average loss: {loss_acc / VIEW_STEP}, prediction accuracy "
+                    f"{hits_acc / (VIEW_STEP * BATCH_SIZE)}"
+                )
+                print(f"Used GPU memory {torch.cuda.memory_allocated() / 1024 ** 3} GB")
+                loss_acc = 0
+                hits_acc = 0
 
-        # Stop training after x iterations
-        if DEBUG is True and iteration == 300:
-            break
+            # Stop training after x iterations
+            if DEBUG is True and iteration == 300:
+                break
 
-    torch.save(model.state_dict(), MODEL_OUT_DIR / "ecapa_tdnn.state_dict")
-    torch.save(classify.state_dict(), MODEL_OUT_DIR / "classifier.state_dict")
-    torch.save(optimizer.state_dict(), MODEL_OUT_DIR / "optimizer.state_dict")
+        torch.save(model.state_dict(), MODEL_OUT_DIR / f"ecapa_tdnn.{epoch}.state_dict")
+        torch.save(classify.state_dict(), MODEL_OUT_DIR / f"classifier.{epoch}.state_dict")
+        torch.save(optimizer.state_dict(), MODEL_OUT_DIR / f"optimizer.{epoch}.state_dict")
