@@ -10,8 +10,16 @@ GIT_BRANCH="${1:-main}"
 WALLTIME="$2"
 KNN_BATCH_SIZE="$3"
 KNN_DATASET_DIR="$4"
+KNN_NOF_EPOCHS="$5"
+KNN_MODEL_IN_DIR="$6"
+
+ARG_STRING=GIT_BRANCH="$GIT_BRANCH",KNN_BATCH_SIZE="$KNN_BATCH_SIZE",KNN_DATASET_DIR="$KNN_DATASET_DIR"
+ARG_STRING+=,KNN_DOWNLOAD_DATASET=True,KNN_NOF_EPOCHS="$KNN_NOF_EPOCHS"
+
+if [ -n "$KNN_MODEL_IN_DIR" ]; then
+  ARG_STRING+=,KNN_MODEL_IN_DIR="$KNN_MODEL_IN_DIR"
+fi
 
 # -v list of environment variables to be given to the job
-# Specify variable KNN_MODEL_IN_DIR if you start training from a saved checkpoint model
-qsub -v GIT_BRANCH="$GIT_BRANCH",KNN_BATCH_SIZE="$KNN_BATCH_SIZE",KNN_DATASET_DIR="$KNN_DATASET_DIR",KNN_DOWNLOAD_DATASET=True \
+qsub -v "$ARG_STRING" \
   -l walltime="$WALLTIME" ./"$(dirname "$0")"/train_model_job
