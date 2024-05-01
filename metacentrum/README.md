@@ -17,11 +17,11 @@ cd knn && git switch <branch> && cd ..
 ## Executing workloads
 
 ```shell
-# Train with args:      branch walltime batch_size dataset_dir                     nof_epochs checkpoint_dir
-bash knn/metacentrum/train yo "5:00:00" 16 /storage/brno12-cerit/home/tichavskym/voxceleb1 10 ""
+# Train with args:       branch walltime batch_size dataset_dir                      nof_epochs checkpoint_dir
+bash knn/metacentrum/train main "5:00:00" 16 /storage/brno12-cerit/home/tichavskym/voxceleb1 10 ""
 
-# Evaluate the model
-bash knn/metacentrum/evaluate meta "speechbrain/spkrec-ecapa-voxceleb" "2:00:00"
+# Evaluate the model          branch walltime  dataset_dir                                   model_name                         load_from_file
+bash knn/metacentrum/evaluate main "2:00:00" /storage/brno12-cerit/home/tichavskym/voxceleb1 "speechbrain/spkrec-ecapa-voxceleb" ""
 ```
 
 ## Monitoring & results retrieval

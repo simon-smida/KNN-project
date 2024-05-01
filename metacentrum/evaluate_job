@@ -65,8 +65,10 @@ make evaluate
 echo "Saving results into the storage..."
 output_dir="$RES_DIR/evaluate-$(date +%Y-%m-%d-%H-%M)"
 mkdir -p "$output_dir"
-mv det_curve.png "$output_dir/det_curve.png"
-mv scores.txt "$output_dir/scores.txt"
+echo "Output dir: $output_dir"
+mv experiments/scores/* "$output_dir"/scores
+mv experiments/det/* "$output_dir"/det
+echo "Results saved."
 
 # clean the SCRATCH directory
 clean_scratch

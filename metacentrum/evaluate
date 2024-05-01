@@ -7,8 +7,16 @@
 # Which in turn builds on: https://github.com/roman-janik/diploma_thesis_program/blob/main/ner/start_training_ner.sh
 
 GIT_BRANCH="${1:-main}"
-MODEL=$2
-WALLTIME=$3
+WALLTIME="$2"
+DATASET_DIR="$3"
+MODEL="$4"
+MODEL_FILENAME="$5"
+
+ARG_STRING=GIT_BRANCH="$GIT_BRANCH",KNN_MODEL="$MODEL",KNN_DATASET_DIR="$DATASET_DIR"
+
+if [ -n "$MODEL_FILENAME" ]; then
+    ARG_STRING+=,KNN_MODEL_FILENAME="$MODEL_FILENAME"
+fi
 
 # -v list of environment variables to be given to the job
-qsub -v GIT_BRANCH="$GIT_BRANCH",KNN_MODEL="$MODEL" -l walltime="$WALLTIME" ./"$(dirname "$0")"/evaluate_job
+qsub -v "$ARG_STRING" -l walltime="$WALLTIME" ./"$(dirname "$0")"/evaluate_job
