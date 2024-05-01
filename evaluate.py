@@ -24,6 +24,7 @@ MODEL_FILENAME = Path(
 # When running on less powerful devices, it might be helpful to evaluate on a smaller number of samples
 EVAL_FIRST = int(os.getenv("KNN_EVAL_FIRST")) if os.getenv("KNN_EVAL_FIRST") is not None else None
 
+# If you change these dirs, make sure to update metacentrum/evaluate_job script
 SCORES_DIR = Path("experiments/scores")
 SCORES_DIR.mkdir(parents=True, exist_ok=True)
 DET_DIR = Path("experiments/det")
@@ -143,16 +144,14 @@ def evaluate_on_voxceleb1(
         for left, right, sr, t, _, _ in train_dataloader:
             assert sr == EXPECTED_SAMPLE_RATE
             i += 1
-            left_embedding = get_embeddings(left, model)
-            right_embedding = get_embeddings(right, model)
 
-            left_embedding = left_embedding.to(device)
-            right_embedding = right_embedding.to(device)
+            left_embedding = get_embeddings(left.to(device), model)
+            right_embedding = get_embeddings(right.to(device), model)
 
             distance = similarity_fn(left_embedding, right_embedding)
             labels.append(t.item())
             scores.append(distance.item())
-            f.write(f"{t} {distance.item()}\n")
+            f.write(f"{t.item()} {distance.item()}\n")
 
             if i % LOG_INTERVAL == 0:
                 logger.info(f"Processed {i} samples.")
@@ -171,6 +170,7 @@ if __name__ == "__main__":
     device_str = "cuda" if torch.cuda.is_available() else "cpu"
     device = torch.device(device_str)
 
+    logger.info(f"Loading model {MODEL_NAME}...")
     model_name = MODEL_NAME
     if model_name == "microsoft/wavlm-base-sv":
         # Pre-trained WavLM + x-vector head model trained with an Additive Margin Softmax loss.
