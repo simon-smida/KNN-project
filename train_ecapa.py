@@ -82,7 +82,7 @@ if __name__ == "__main__":
 
     if device_str == "cuda":
         print("Perform memory usage analysis...")
-        torch.cuda.memory._record_memory_history(enabled='all')
+        torch.cuda.memory._record_memory_history(True)
     print(f"Starting training with batch size {BATCH_SIZE} and {NOF_EPOCHS} epochs...")
     for epoch in range(NOF_EPOCHS):
         print(f"Epoch {epoch + 1}")
