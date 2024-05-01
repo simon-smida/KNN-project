@@ -103,7 +103,7 @@ if __name__ == "__main__":
             # Compute stats
             loss_acc += loss.item()
             _, pred_labels = torch.max(outputs, 2)
-            hits_acc += torch.eq(batch_labels, pred_labels).max().item()
+            hits_acc += torch.sum(torch.eq(batch_labels, pred_labels)).item()
 
             # Print stats
             if iteration % VIEW_STEP == 0:
