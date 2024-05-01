@@ -62,8 +62,8 @@ if __name__ == "__main__":
     if MODEL_IN_DIR is not None:
         MODEL_IN_DIR = Path(MODEL_IN_DIR)
         print(f"Loading models from {MODEL_IN_DIR}...")
-        model.load_state_dict(torch.load(MODEL_IN_DIR / "ecapa_tdnn.state_dict"))
-        classify.load_state_dict(torch.load(MODEL_IN_DIR / "classifier.state_dict"))
+        model.load_state_dict(torch.load(MODEL_IN_DIR / "ecapa_tdnn.state_dict", map_location=device))
+        classify.load_state_dict(torch.load(MODEL_IN_DIR / "classifier.state_dict", map_location=device))
 
     model.to(device)
     model.train()
@@ -72,7 +72,7 @@ if __name__ == "__main__":
 
     optimizer = torch.optim.Adam(list(model.parameters()) + list(classify.parameters()), lr=0.001, weight_decay=0.000002)
     if MODEL_IN_DIR is not None:
-        optimizer.load_state_dict(torch.load(MODEL_IN_DIR / "optimizer.state_dict"))
+        optimizer.load_state_dict(torch.load(MODEL_IN_DIR / "optimizer.state_dict", map_location=device))
 
     criterion = LogSoftmaxWrapper(AdditiveAngularMargin(margin=0.2, scale=30))
     fbank = Fbank(n_mels=80, left_frames=0, right_frames=0, deltas=False)
