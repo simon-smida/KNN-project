@@ -70,7 +70,9 @@ if __name__ == "__main__":
     classify.to(device)
     classify.train()
 
-    optimizer = torch.optim.Adam(list(model.parameters()) + list(classify.parameters()), lr=0.001, weight_decay=0.000002)
+    optimizer = torch.optim.Adam(
+        [{"params": model.parameters()}, {"params": classify.parameters()}], lr=0.001, weight_decay=0.000002
+    )
     if MODEL_IN_DIR is not None:
         optimizer.load_state_dict(torch.load(MODEL_IN_DIR / "optimizer.state_dict", map_location=device))
 
@@ -78,6 +80,9 @@ if __name__ == "__main__":
     fbank = Fbank(n_mels=80, left_frames=0, right_frames=0, deltas=False)
     mean_var_norm = InputNormalization(norm_type="sentence", std_norm=False)
 
+    if device_str == "cuda":
+        print("Perform memory usage analysis...")
+        torch.cuda.memory._record_memory_history(enabled='all')
     print(f"Starting training with batch size {BATCH_SIZE} and {NOF_EPOCHS} epochs...")
     for epoch in range(NOF_EPOCHS):
         print(f"Epoch {epoch + 1}")
@@ -111,7 +116,11 @@ if __name__ == "__main__":
                     f"Iteration {iteration}, average loss: {loss_acc / VIEW_STEP}, prediction accuracy "
                     f"{hits_acc / (VIEW_STEP * BATCH_SIZE)}"
                 )
-                print(f"Used GPU memory {torch.cuda.memory_allocated() / 1024 ** 3} GB")
+                print(
+                    f"Memory allocated: {torch.cuda.memory_allocated() / 1024 ** 3} GB, "
+                    f"memory reserved: {torch.cuda.memory_reserved() / 1024 ** 3} GB"
+                )
+                print(f"Device stats: {torch.cuda.memory_stats(device)}")
                 loss_acc = 0
                 hits_acc = 0
 
@@ -122,3 +131,7 @@ if __name__ == "__main__":
         torch.save(model.state_dict(), MODEL_OUT_DIR / f"ecapa_tdnn.{epoch}.state_dict")
         torch.save(classify.state_dict(), MODEL_OUT_DIR / f"classifier.{epoch}.state_dict")
         torch.save(optimizer.state_dict(), MODEL_OUT_DIR / f"optimizer.{epoch}.state_dict")
+
+        if device_str == "cuda":
+            torch.cuda.memory._dump_snapshot(MODEL_OUT_DIR / f"my_snapshot.{epoch}.pickle")
+        torch.cuda.empty_cache()

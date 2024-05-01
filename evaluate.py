@@ -1,7 +1,6 @@
 import logging
 import os
 
-import numpy as np
 import torch
 from transformers import Wav2Vec2FeatureExtractor, WavLMForXVector
 from speechbrain.inference.speaker import EncoderClassifier
