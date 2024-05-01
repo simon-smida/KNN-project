@@ -21,6 +21,21 @@ to project root (the path can be changed by setting `KNN_DATASET_DIR` environmen
 On Metacentrum, I have pre-downloaded this dataset into my home directory at
 `/storage/brno12-cerit/home/tichavskym/voxceleb1`.
 
+## ECAPA training
+
+To train the custom version of ECAPA-TDNN, execute `make train`. You can use environment variables to parametrize
+the job run, namely
+
+- `KNN_BATCH_SIZE` to set mini-batch size,
+- `NOF_EPOCHS` for how many epoch you want to train your model,
+- `KNN_MODEL_OUT_DIR` where the model, classifier and optimizer checkpoints are stored ater each iteration
+- `DEBUG` to mark if you're executing in debug mode,
+- `KNN_DATASET_DIR` with path pointing to the Voxceleb1 dataset,
+- `MODEL_IN_DIR` should be set only if you want to start training from a saved checkpoint, this expects
+  `ecapa_tdnn.state_dict`, `classifier.state_dict` and `optimizer.state_dict` files to be present in the given
+  directory.
+
+
 ## Model evaluation
 
 Model evaluation can be executed using `make evaluate` target. This will launches [evaluate.py](evaluate.py) script,
@@ -30,6 +45,7 @@ which evaluates the model on the VoxCeleb test set. This script can be parametri
     or `ecapa-tdnn`,
 - `KNN_MODEL_FILENAME` if `KNN_MODEL` is set to `ecapa-tdnn`, this variable contains the path to the model file with
     weights and biases. This file should be in a `state_dict` format,
+- `KNN_DATASET_DIR` with path pointing to the Voxceleb1 dataset,
 - `EVAL_FIRST` when debugging, this variable can be set to number of samples to evaluate (when unset,
     evaluates on the whole verification set).
 
