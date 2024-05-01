@@ -78,12 +78,12 @@ if __name__ == "__main__":
     fbank = Fbank(n_mels=80, left_frames=0, right_frames=0, deltas=False)
     mean_var_norm = InputNormalization(norm_type="sentence", std_norm=False)
 
-    iteration = 0
-    loss_acc = 0
-    hits_acc = 0
     print(f"Starting training with batch size {BATCH_SIZE} and {NOF_EPOCHS} epochs...")
     for epoch in range(NOF_EPOCHS):
         print(f"Epoch {epoch + 1}")
+        iteration = 0
+        loss_acc = 0
+        hits_acc = 0
         for batch, lengths in train_dataloader:
             iteration += 1
 
