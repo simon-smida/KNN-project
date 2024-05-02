@@ -12,7 +12,7 @@
 
 #PBS -N batch_job_knn
 #PBS -q gpu
-#PBS -l select=1:ncpus=2:ngpus=1:gpu_mem=20gb:mem=20gb:scratch_local=30gb
+#PBS -l select=1:ncpus=2:ngpus=1:gpu_mem=30gb:mem=30gb:scratch_local=30gb
 #PBS -j oe
 #PBS -m ae
 
