@@ -80,9 +80,9 @@ if __name__ == "__main__":
     fbank = Fbank(n_mels=80, left_frames=0, right_frames=0, deltas=False)
     mean_var_norm = InputNormalization(norm_type="sentence", std_norm=False)
 
-    if device_str == "cuda":
-        print("Perform memory usage analysis...")
-        torch.cuda.memory._record_memory_history(True)
+    # if device_str == "cuda":
+    #     print("Perform memory usage analysis...")
+    #     torch.cuda.memory._record_memory_history(True)
     print(f"Starting training with batch size {BATCH_SIZE} and {NOF_EPOCHS} epochs...")
     for epoch in range(NOF_EPOCHS):
         print(f"Epoch {epoch + 1}")
@@ -96,14 +96,13 @@ if __name__ == "__main__":
             batch_labels = batch[2].unsqueeze(1).to(device)
             lengths.to(device)
 
-            optimizer.zero_grad()
-
             outputs = model(x)
             cls_out = classify(outputs)
 
             loss = criterion(cls_out, batch_labels)
             loss.backward()  # Compute gradients
             optimizer.step()
+            optimizer.zero_grad()
 
             # Compute stats
             loss_acc += loss.item()
@@ -132,6 +131,6 @@ if __name__ == "__main__":
         torch.save(classify.state_dict(), MODEL_OUT_DIR / f"classifier.{epoch}.state_dict")
         torch.save(optimizer.state_dict(), MODEL_OUT_DIR / f"optimizer.{epoch}.state_dict")
 
-        if device_str == "cuda":
-            torch.cuda.memory._dump_snapshot(MODEL_OUT_DIR / f"my_snapshot.{epoch}.pickle")
+        # if device_str == "cuda":
+        #     torch.cuda.memory._dump_snapshot(MODEL_OUT_DIR / f"my_snapshot.{epoch}.pickle")
         torch.cuda.empty_cache()
