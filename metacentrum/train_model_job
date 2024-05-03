@@ -61,7 +61,15 @@ pip install --upgrade pip
 TMPDIR="../tmp" pip install torch==2.0.0 --extra-index-url https://download.pytorch.org/whl/cu113 -r requirements.txt
 
 echo "Starting the training..."
+ORIGINAL_MODEL_OUT_DIR="$MODEL_OUT_DIR"
+export KNN_MODEL_OUT_DIR="$ORIGINAL_MODEL_OUT_DIR/0"
 make train
+for i in $(seq 1 $NOF_EPOCHS); do
+  prev_epoch=$((i - 1))
+  export KNN_MODEL_IN_DIR="$ORIGINAL_MODEL_OUT_DIR/$prev_epoch/0"
+  export KNN_MODEL_OUT_DIR="$ORIGINAL_MODEL_OUT_DIR/$i"
+  make train
+done
 
 output_dir="$RES_DIR/train-$(date +%Y-%m-%d-%H-%M)"
 echo "Saving the results into the storage directory $output_dir"

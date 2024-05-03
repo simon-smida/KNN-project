@@ -17,7 +17,7 @@ MODEL_OUT_DIR = Path(os.getenv("KNN_MODEL_OUT_DIR", default="experiments/models"
 MODEL_OUT_DIR.mkdir(parents=True, exist_ok=True)
 DEBUG = True if os.getenv("KNN_DEBUG", default="False") == "True" else False
 MODEL_IN_DIR = os.getenv("KNN_MODEL_IN_DIR", default=None)
-NOF_EPOCHS = int(os.getenv("KNN_NOF_EPOCHS", default=10))
+NOF_EPOCHS = int(os.getenv("KNN_NOF_EPOCHS", default=1))
 
 
 VIEW_STEP = 50
@@ -69,7 +69,7 @@ if __name__ == "__main__":
     classify.train()
 
     optimizer = torch.optim.Adam(
-        list(model.parameters()) + list(classify.parameters()), lr=0.001, weight_decay=0.000002
+        [{"params": model.parameters()}, {"params": classify.parameters()}], lr=0.001, weight_decay=0.000002
     )
     if MODEL_IN_DIR is not None:
         optimizer.load_state_dict(
@@ -80,7 +80,7 @@ if __name__ == "__main__":
 
     print(f"Starting training with batch size {BATCH_SIZE} and {NOF_EPOCHS} epochs...")
     for epoch in range(NOF_EPOCHS):
-        print(f"Epoch {epoch + 1}")
+        print(f"Epoch {epoch}")
         iteration = 0
         loss_acc = 0
         hits_acc = 0
@@ -119,6 +119,7 @@ if __name__ == "__main__":
             if DEBUG is True and iteration == 300:
                 break
 
-        torch.save(model.state_dict(), MODEL_OUT_DIR / f"ecapa_tdnn.{epoch}.state_dict")
-        torch.save(classify.state_dict(), MODEL_OUT_DIR / f"classifier.{epoch}.state_dict")
-        torch.save(optimizer.state_dict(), MODEL_OUT_DIR / f"optimizer.{epoch}.state_dict")
+        (MODEL_OUT_DIR / str(epoch)).mkdir(parents=True, exist_ok=True)
+        torch.save(model.state_dict(), MODEL_OUT_DIR / str(epoch) / f"ecapa_tdnn.state_dict")
+        torch.save(classify.state_dict(), MODEL_OUT_DIR / str(epoch) / f"classifier.state_dict")
+        torch.save(optimizer.state_dict(), MODEL_OUT_DIR / str(epoch) / f"optimizer.state_dict")
