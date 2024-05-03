@@ -61,7 +61,7 @@ pip install --upgrade pip
 TMPDIR="../tmp" pip install torch==2.0.0 --extra-index-url https://download.pytorch.org/whl/cu113 -r requirements.txt
 
 echo "Starting the training..."
-ORIGINAL_MODEL_OUT_DIR="$MODEL_OUT_DIR"
+ORIGINAL_MODEL_OUT_DIR="experiments/models"
 export KNN_MODEL_OUT_DIR="$ORIGINAL_MODEL_OUT_DIR/0"
 make train
 for i in $(seq 1 $NOF_EPOCHS); do
