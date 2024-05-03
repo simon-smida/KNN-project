@@ -94,6 +94,7 @@ if __name__ == "__main__":
     criterion = LogSoftmaxWrapper(AdditiveAngularMargin(margin=0.2, scale=30))
 
     print(f"Starting training with batch size {BATCH_SIZE} and {NOF_EPOCHS} epochs...")
+    print(f"Model trained: {MODEL}")
     for epoch in range(NOF_EPOCHS):
         print(f"Epoch {epoch + 1}")
         iteration = 0
@@ -116,7 +117,6 @@ if __name__ == "__main__":
             loss.backward()  # Compute gradients
             optimizer.step()
 
-            batch_labels = batch_labels.squeeze(1)
             # Compute stats
             loss_acc += loss.item()
             _, pred_labels = torch.max(cls_out, 1)

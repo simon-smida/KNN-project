@@ -21,7 +21,7 @@ to project root (the path can be changed by setting `KNN_DATASET_DIR` environmen
 On Metacentrum, I have pre-downloaded this dataset into my home directory at
 `/storage/brno12-cerit/home/tichavskym/voxceleb1`.
 
-## ECAPA training
+## ECAPA-TDNN training
 
 To train the custom version of ECAPA-TDNN, execute `make train`. You can use environment variables to parametrize
 the job run, namely
