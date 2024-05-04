@@ -11,14 +11,16 @@ from models.ecapa import ECAPA_TDNN, Classifier
 from speechbrain.nnet.losses import LogSoftmaxWrapper, AdditiveAngularMargin
 
 from models.preprocess import get_spectrum_feats
+from models.wavlm_ecapa import WavLM_ECAPA
 
-BATCH_SIZE = int(os.getenv("KNN_BATCH_SIZE", default=4))
+MODEL = os.getenv("KNN_MODEL", default="ECAPA_WAVLM")
+MODEL_IN_DIR = os.getenv("KNN_MODEL_IN_DIR", default=None)
 MODEL_OUT_DIR = Path(os.getenv("KNN_MODEL_OUT_DIR", default="experiments/models"))
 MODEL_OUT_DIR.mkdir(parents=True, exist_ok=True)
-DEBUG = True if os.getenv("KNN_DEBUG", default="False") == "True" else False
-MODEL_IN_DIR = os.getenv("KNN_MODEL_IN_DIR", default=None)
-NOF_EPOCHS = int(os.getenv("KNN_NOF_EPOCHS", default=10))
 
+DEBUG = True if os.getenv("KNN_DEBUG", default="False") == "True" else False
+NOF_EPOCHS = int(os.getenv("KNN_NOF_EPOCHS", default=10))
+BATCH_SIZE = int(os.getenv("KNN_BATCH_SIZE", default=16))
 
 VIEW_STEP = 50
 
@@ -50,18 +52,25 @@ if __name__ == "__main__":
         voxceleb1, batch_size=BATCH_SIZE, shuffle=True, collate_fn=collate_with_padding
     )
 
-    model = ECAPA_TDNN(input_size=80, lin_neurons=192, device=device_str)
-    classify = Classifier(input_size=192, lin_neurons=192, out_neurons=1252)
+    if MODEL == "ECAPA":
+        model = ECAPA_TDNN(input_size=80, lin_neurons=192, device=device_str)
+        classify = Classifier(input_size=192, lin_neurons=192, out_neurons=1252)
 
-    if MODEL_IN_DIR is not None:
-        MODEL_IN_DIR = Path(MODEL_IN_DIR)
-        print(f"Loading models from {MODEL_IN_DIR}...")
-        model.load_state_dict(
-            torch.load(MODEL_IN_DIR / "ecapa_tdnn.state_dict", map_location=device)
-        )
-        classify.load_state_dict(
-            torch.load(MODEL_IN_DIR / "classifier.state_dict", map_location=device)
-        )
+        if MODEL_IN_DIR is not None:
+            MODEL_IN_DIR = Path(MODEL_IN_DIR)
+            print(f"Loading models from {MODEL_IN_DIR}...")
+            model.load_state_dict(
+                torch.load(MODEL_IN_DIR / "ecapa_tdnn.state_dict", map_location=device)
+            )
+            classify.load_state_dict(
+                torch.load(MODEL_IN_DIR / "classifier.state_dict", map_location=device)
+            )
+        model.extract_features = get_spectrum_feats
+    elif MODEL == "ECAPA_WAVLM":
+        model = WavLM_ECAPA(device_str)
+        classify = Classifier(input_size=192, lin_neurons=192, out_neurons=1252)
+    else:
+        raise Exception("Unknown model name.")
 
     model.to(device)
     model.train()
@@ -87,7 +96,9 @@ if __name__ == "__main__":
         for batch, lengths in train_dataloader:
             iteration += 1
 
-            x = get_spectrum_feats(batch[0], lengths).to(device)
+            x = model.extract_features(batch[0], lengths)
+            x = x.to(device)
+
             batch_labels = batch[2].unsqueeze(1).to(device)
             lengths.to(device)
 
