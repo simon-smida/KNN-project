@@ -6,7 +6,7 @@ venv:
 	venv/bin/pip install -r requirements.txt -r requirements-dev.txt
 
 format:
-	venv/bin/ruff format *.py
+	venv/bin/ruff format *.py models/wavlm_ecapa.py
 
 download-voxceleb:
 	venv/bin/python -c "from common.common import download_voxceleb; download_voxceleb()"
