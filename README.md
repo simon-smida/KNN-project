@@ -26,15 +26,18 @@ On Metacentrum, I have pre-downloaded this dataset into my home directory at
 To train the custom version of ECAPA-TDNN, execute `make train`. You can use environment variables to parametrize
 the job run, namely
 
-- `KNN_BATCH_SIZE` to set mini-batch size,
-- `NOF_EPOCHS` for how many epoch you want to train your model,
-- `KNN_MODEL_OUT_DIR` where the model, classifier and optimizer checkpoints are stored ater each iteration
-- `DEBUG` to mark if you're executing in debug mode,
 - `KNN_DATASET_DIR` with path pointing to the Voxceleb1 dataset,
+- `KNN_MODEL` which model to train
 - `MODEL_IN_DIR` should be set only if you want to start training from a saved checkpoint, this expects
   `ecapa_tdnn.state_dict`, `classifier.state_dict` and `optimizer.state_dict` files to be present in the given
   directory.
+- `KNN_MODEL_OUT_DIR` where the model, classifier and optimizer checkpoints are stored ater each iteration
+- `KNN_DEBUG` to mark if you're executing in debug mode,
+- `NOF_EPOCHS` for how many epoch you want to train your model,
+- `KNN_BATCH_SIZE` to set mini-batch size,
+- `KNN_VIEW_STEP` to set after how many iteration to print the stats
 
+Output of the training is stored in `experiments/` directory by default.
 
 ## Model evaluation
 
