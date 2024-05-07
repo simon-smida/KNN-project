@@ -27,10 +27,12 @@ def collate_with_padding(batch):
     """
     Performs zero right padding and then calls `default_collate` function.
     """
-    max_length = max([(b[0].shape[1]) for b in batch])
+    # max_length = max([(b[0].shape[1]) for b in batch])
+    max_length = 5 * 16_000
     new_batch = []
     lengths = []
     for tensor, sr, speaker_id, filename in batch:
+        tensor = tensor[:max_length]
         tensor = torch.nn.functional.pad(tensor, (0, max_length - tensor.shape[1]))
         new_batch.append((tensor, sr, speaker_id, filename))
         lengths.append(tensor.shape[1] / max_length)
