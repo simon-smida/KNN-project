@@ -5,6 +5,7 @@ from torchaudio.datasets import VoxCeleb1Identification
 
 DATASET_DIR = Path(os.getenv("KNN_DATASET_DIR", default="voxceleb1"))
 DATASET_DIR.mkdir(parents=True, exist_ok=True)
+SAMPLE_RATE = 16_000
 
 
 def download_voxceleb(split="train"):
