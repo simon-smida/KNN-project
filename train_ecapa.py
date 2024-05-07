@@ -13,14 +13,14 @@ from speechbrain.nnet.losses import LogSoftmaxWrapper, AdditiveAngularMargin
 from models.preprocess import get_spectrum_feats
 from models.wavlm_ecapa import WavLM_ECAPA, WavLM_ECAPA_Weighted
 
-MODEL = os.getenv("KNN_MODEL", default="WAVLM_ECAPA_WEIGHTED")
+MODEL = os.getenv("KNN_MODEL", default="ECAPA")
 MODEL_IN_DIR = os.getenv("KNN_MODEL_IN_DIR", default=None)
 MODEL_OUT_DIR = Path(os.getenv("KNN_MODEL_OUT_DIR", default="experiments/models"))
 MODEL_OUT_DIR.mkdir(parents=True, exist_ok=True)
 
 DEBUG = True if os.getenv("KNN_DEBUG", default="False") == "True" else False
 NOF_EPOCHS = int(os.getenv("KNN_NOF_EPOCHS", default=10))
-BATCH_SIZE = int(os.getenv("KNN_BATCH_SIZE", default=16))
+BATCH_SIZE = int(os.getenv("KNN_BATCH_SIZE", default=32))
 VIEW_STEP = int(os.getenv("KNN_VIEW_STEP", default=50))
 
 
