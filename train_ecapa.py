@@ -111,16 +111,16 @@ if __name__ == "__main__":
             optimizer.zero_grad()
 
             outputs = model(x)
-            cls_out = classify(outputs)
-
+            cls_out = classify(outputs).squeeze(1)
             loss = criterion(cls_out, batch_labels)
             loss.backward()  # Compute gradients
             optimizer.step()
 
+            batch_labels = batch_labels.squeeze(1)
             # Compute stats
             loss_acc += loss.item()
-            _, pred_labels = torch.max(outputs, 2)
-            hits_acc += torch.sum(torch.eq(batch_labels, pred_labels)).item()
+            _, pred_labels = torch.max(cls_out, 1)
+            hits_acc += (pred_labels == batch_labels.squeeze()).sum().item()
 
             # Print stats
             if iteration % VIEW_STEP == 0:
