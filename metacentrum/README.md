@@ -3,6 +3,8 @@
 This directory contains scripts for executing workloads on Metacentrum. The documentation can be found
 [at this URL](https://docs.metacentrum.cz/). Before you start, create a Metacentrum account following the docs.
 
+As the next major improvement, it would be nice to update to latest version of pytorch (using the old approach).
+
 ## Environment setup
 
 ```shell
