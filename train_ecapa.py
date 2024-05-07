@@ -80,7 +80,7 @@ if __name__ == "__main__":
     classify.train()
 
     optimizer = torch.optim.Adam(
-        list(model.parameters()) + list(classify.parameters()), lr=0.001, weight_decay=0.000002
+        [{"params": model.parameters()}, {"params": classify.parameters()}], lr=0.001, weight_decay=0.000002
     )
     if MODEL_IN_DIR is not None:
         optimizer.load_state_dict(
