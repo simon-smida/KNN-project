@@ -6,7 +6,7 @@ from torch.utils.data import default_collate
 from torchaudio.datasets import VoxCeleb1Identification
 from torch.utils.data import DataLoader
 
-from common.common import DATASET_DIR
+from common.common import DATASET_DIR, SAMPLE_RATE
 from models.ecapa import ECAPA_TDNN, Classifier
 from speechbrain.nnet.losses import LogSoftmaxWrapper, AdditiveAngularMargin
 
@@ -27,11 +27,15 @@ VIEW_STEP = int(os.getenv("KNN_VIEW_STEP", default=50))
 def collate_with_padding(batch):
     """
     Performs zero right padding and then calls `default_collate` function.
+
+    Also, trims all recordings to 5 seconds.
     """
-    max_length = max([(b[0].shape[1]) for b in batch])
+    # max_length = max([(b[0].shape[1]) for b in batch])
+    max_length = 5 * SAMPLE_RATE
     new_batch = []
     lengths = []
     for tensor, sr, speaker_id, filename in batch:
+        tensor = tensor[:max_length]
         tensor = torch.nn.functional.pad(tensor, (0, max_length - tensor.shape[1]))
         new_batch.append((tensor, sr, speaker_id, filename))
         lengths.append(tensor.shape[1] / max_length)

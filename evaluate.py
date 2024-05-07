@@ -6,7 +6,7 @@ import torch
 
 from models import preprocess
 from models.ecapa import ECAPA_TDNN
-from common.common import DATASET_DIR
+from common.common import DATASET_DIR, SAMPLE_RATE
 
 from pathlib import Path
 from sklearn import metrics
@@ -31,7 +31,6 @@ DET_DIR = Path("experiments/det")
 DET_DIR.mkdir(parents=True, exist_ok=True)
 
 LOG_INTERVAL = 500
-EXPECTED_SAMPLE_RATE = 16_000
 
 
 def to_filename(string):
@@ -142,7 +141,7 @@ def evaluate_on_voxceleb1(
         scores = []
         labels = []
         for left, right, sr, t, _, _ in train_dataloader:
-            assert sr == EXPECTED_SAMPLE_RATE
+            assert sr == SAMPLE_RATE
             i += 1
 
             left_embedding = get_embeddings(left.to(device), model)
