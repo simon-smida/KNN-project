@@ -37,7 +37,7 @@ class WavLM_ECAPA(torch.nn.Module):
         )["input_values"]
 
 
-class WavLM_ECAPA_Weighted(WavLM_ECAPA):
+class WavLM_ECAPA_Weighted_Unfixed(WavLM_ECAPA):
     """
     Improves base WavLM_ECAPA by computing weighted sum across all WavLM hidden layers output.
     """
@@ -64,6 +64,15 @@ class WavLM_ECAPA_Weighted(WavLM_ECAPA):
         x = self.ecapa(x)  # Returns tensor with dimensions (batch_size, 1, embeddings)
         return x
 
+    def parameters(self, only_trainable=False):
+        return chain(
+            self.wavlm.parameters(only_trainable),
+            self.weighted_sum.parameters(only_trainable),
+            self.ecapa.parameters(only_trainable),
+        )
+
+
+class WavLM_ECAPA_Weighted_Fixed(WavLM_ECAPA_Weighted_Unfixed):
     def parameters(self, only_trainable=False):
         return chain(
             self.ecapa.parameters(only_trainable), self.weighted_sum.parameters(only_trainable)
