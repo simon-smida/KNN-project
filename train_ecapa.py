@@ -1,6 +1,7 @@
 import os
 from pathlib import Path
 
+import numpy as np
 import torch
 from torch.utils.data import default_collate
 from torchaudio.datasets import VoxCeleb1Identification
@@ -27,17 +28,21 @@ VIEW_STEP = int(os.getenv("KNN_VIEW_STEP", default=50))
 
 def collate_with_padding(batch):
     """
-    Performs zero right padding and then calls `default_collate` function.
+    Picks a random max_length sized segment from the recording, if it's too short, zero pad it.
 
-    Also, trims all recordings to 5 seconds.
+    Calls `default_collate` function.
     """
-    # max_length = max([(b[0].shape[1]) for b in batch])
     max_length = 5 * SAMPLE_RATE
     new_batch = []
     lengths = []
     for tensor, sr, speaker_id, filename in batch:
-        tensor = tensor[:max_length]
+        if tensor.shape[1] - max_length > 0:
+            idx = np.random.choice(tensor.shape[1] - max_length)
+        else:
+            idx = 0
+        tensor = tensor[:, idx:]
         tensor = torch.nn.functional.pad(tensor, (0, max_length - tensor.shape[1]))
+
         new_batch.append((tensor, sr, speaker_id, filename))
         lengths.append(tensor.shape[1] / max_length)
     return default_collate(new_batch), torch.tensor(lengths)
