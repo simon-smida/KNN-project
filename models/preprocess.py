@@ -11,7 +11,7 @@ def get_spectrum_feats(wavs: torch.Tensor, lengths: torch.Tensor):
     """
     Get spectrum features for batch of recordings in wavs.
 
-    Because batch is padded, lenghts represent what fraction of the current vector is original recording,
+    Because batch is padded, lengths represent what fraction of the current vector is original recording,
     the rest is padding.
     """
     features = [fbank(wav) for wav in wavs]
@@ -32,3 +32,9 @@ def get_embeddings(wav: torch.Tensor, model: torch.nn.Module):
     x = torch.transpose(x, 0, 1).unsqueeze(dim=0)
     embeddings = model(x)
     return embeddings
+
+
+def get_embeddings_wavlm(wav: torch.Tensor, model: torch.nn.Module):
+    x = model.extract_features(wav, wav.shape[2])
+    outputs = model(x)
+    return outputs

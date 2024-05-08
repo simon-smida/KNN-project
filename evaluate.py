@@ -16,6 +16,7 @@ from torch.utils.data import DataLoader
 from torchaudio.datasets import VoxCeleb1Verification
 from transformers import Wav2Vec2FeatureExtractor, WavLMForXVector
 
+from models.wavlm_ecapa import WavLM_ECAPA, WavLM_ECAPA_Weighted
 
 MODEL_NAME = os.getenv("KNN_MODEL", default="speechbrain/spkrec-ecapa-voxceleb")
 MODEL_FILENAME = Path(
@@ -169,7 +170,7 @@ if __name__ == "__main__":
     device_str = "cuda" if torch.cuda.is_available() else "cpu"
     device = torch.device(device_str)
 
-    logger.info(f"Loading model {MODEL_NAME}...")
+    logger.info(f"Loading model {MODEL_NAME} from file {MODEL_FILENAME}...")
     model_name = MODEL_NAME
     if model_name == "microsoft/wavlm-base-sv":
         # Pre-trained WavLM + x-vector head model trained with an Additive Margin Softmax loss.
@@ -183,11 +184,18 @@ if __name__ == "__main__":
         get_embeddings = get_normalized_embeddings_speechbrain
     elif model_name == "ecapa-tdnn":
         model = ECAPA_TDNN(input_size=80, lin_neurons=192, device=device_str)
-        logger.info(f"Loading model from file {MODEL_FILENAME}...")
         model.load_state_dict(torch.load(MODEL_FILENAME, map_location=device))
         get_embeddings = preprocess.get_embeddings
+    elif model_name == "WAVLM_ECAPA":
+        model = WavLM_ECAPA(device_str)
+        model.load_state_dict(torch.load(MODEL_FILENAME, map_location=device))
+        get_embeddings = preprocess.get_embeddings_wavlm
+    elif model_name == "WAVLM_ECAPA_WEIGHTED":
+        model = WavLM_ECAPA_Weighted(device_str)
+        model.load_state_dict(torch.load(MODEL_FILENAME, map_location=device))
+        get_embeddings = preprocess.get_embeddings_wavlm
     else:
-        raise Exception("Unknown model name.")
+        raise Exception(f"Unknown model name: {model_name}.")
 
     similarity = torch.nn.CosineSimilarity(dim=-1)
 
@@ -198,6 +206,6 @@ if __name__ == "__main__":
         labels, scores, filename=(DET_DIR / to_filename(MODEL_NAME)), model_name=model_name
     )
     eer, thr = calculate_eer(fpr, fnr, thresholds)
-    c_min, c_threshold = calculate_minDCF(torch.tensor(scores), torch.tensor(labels))
     print_eer(eer, thr)
+    c_min, c_threshold = calculate_minDCF(torch.tensor(scores), torch.tensor(labels))
     print_minDCF(c_min, c_threshold)
