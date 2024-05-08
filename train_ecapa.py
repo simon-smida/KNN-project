@@ -15,6 +15,7 @@ from models.wavlm_ecapa import WavLM_ECAPA, WavLM_ECAPA_Weighted
 
 MODEL = os.getenv("KNN_MODEL", default="ECAPA")
 MODEL_IN_DIR = os.getenv("KNN_MODEL_IN_DIR", default=None)
+MODEL_IN_DIR = None if (MODEL_IN_DIR == "None" or MODEL_IN_DIR is None) else Path(MODEL_IN_DIR)
 MODEL_OUT_DIR = Path(os.getenv("KNN_MODEL_OUT_DIR", default="experiments/models"))
 MODEL_OUT_DIR.mkdir(parents=True, exist_ok=True)
 
@@ -42,6 +43,17 @@ def collate_with_padding(batch):
     return default_collate(new_batch), torch.tensor(lengths)
 
 
+def load_model_with_classifier(device, model_name="ecapa_tdnn", classifier_name="classifier"):
+    print(f"Loading model & classifier from {MODEL_IN_DIR}...")
+    model.load_state_dict(
+        torch.load(MODEL_IN_DIR / f"{model_name}.state_dict", map_location=device)
+    )
+    classify.load_state_dict(
+        torch.load(MODEL_IN_DIR / f"{classifier_name}.state_dict", map_location=device)
+    )
+    return model, classify
+
+
 if __name__ == "__main__":
     # A bool that, if True, causes cuDNN to benchmark multiple convolution algorithms and select the fastest
     # However, input tensor of the model has to have constant length and the model cannot change (i.s., it doesn't have
@@ -55,19 +67,12 @@ if __name__ == "__main__":
         voxceleb1, batch_size=BATCH_SIZE, shuffle=True, collate_fn=collate_with_padding
     )
 
+    model_name = "ecapa_tdnn"
+    classify_name = "classifier"
+
     if MODEL == "ECAPA":
         model = ECAPA_TDNN(input_size=80, lin_neurons=192, device=device_str)
         classify = Classifier(input_size=192, lin_neurons=192, out_neurons=1252)
-
-        if MODEL_IN_DIR is not None:
-            MODEL_IN_DIR = Path(MODEL_IN_DIR)
-            print(f"Loading models from {MODEL_IN_DIR}...")
-            model.load_state_dict(
-                torch.load(MODEL_IN_DIR / "ecapa_tdnn.state_dict", map_location=device)
-            )
-            classify.load_state_dict(
-                torch.load(MODEL_IN_DIR / "classifier.state_dict", map_location=device)
-            )
         model.extract_features = get_spectrum_feats
     elif MODEL == "WAVLM_ECAPA":
         model = WavLM_ECAPA(device_str)
@@ -77,6 +82,9 @@ if __name__ == "__main__":
         classify = Classifier(input_size=192, lin_neurons=192, out_neurons=1252)
     else:
         raise Exception("Unknown model name.")
+
+    if MODEL_IN_DIR is not None:
+        model, classify = load_model_with_classifier(device, model_name, classify_name)
 
     model.to(device)
     model.train()
@@ -139,6 +147,6 @@ if __name__ == "__main__":
             if DEBUG is True and iteration == 300:
                 break
 
-        torch.save(model.state_dict(), MODEL_OUT_DIR / f"ecapa_tdnn.{epoch}.state_dict")
-        torch.save(classify.state_dict(), MODEL_OUT_DIR / f"classifier.{epoch}.state_dict")
+        torch.save(model.state_dict(), MODEL_OUT_DIR / f"{model_name}.{epoch}.state_dict")
+        torch.save(classify.state_dict(), MODEL_OUT_DIR / f"{classify_name}.{epoch}.state_dict")
         torch.save(optimizer.state_dict(), MODEL_OUT_DIR / f"optimizer.{epoch}.state_dict")
