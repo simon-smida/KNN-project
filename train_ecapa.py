@@ -48,10 +48,10 @@ def load_model_with_classifier(device, model_name="ecapa_tdnn", classifier_name=
     model.load_state_dict(
         torch.load(MODEL_IN_DIR / f"{model_name}.state_dict", map_location=device)
     )
-    classify.load_state_dict(
+    classifier.load_state_dict(
         torch.load(MODEL_IN_DIR / f"{classifier_name}.state_dict", map_location=device)
     )
-    return model, classify
+    return model, classifier
 
 
 if __name__ == "__main__":
@@ -68,31 +68,31 @@ if __name__ == "__main__":
     )
 
     model_name = "ecapa_tdnn"
-    classify_name = "classifier"
+    classifier_name = "classifier"
 
     if MODEL == "ECAPA":
         model = ECAPA_TDNN(input_size=80, lin_neurons=192, device=device_str)
-        classify = Classifier(input_size=192, lin_neurons=192, out_neurons=1252)
+        classifier = Classifier(input_size=192, lin_neurons=192, out_neurons=1252)
         model.extract_features = get_spectrum_feats
     elif MODEL == "WAVLM_ECAPA":
         model = WavLM_ECAPA(device_str)
-        classify = Classifier(input_size=192, lin_neurons=192, out_neurons=1252)
+        classifier = Classifier(input_size=192, lin_neurons=192, out_neurons=1252)
     elif MODEL == "WAVLM_ECAPA_WEIGHTED":
         model = WavLM_ECAPA_Weighted(device_str)
-        classify = Classifier(input_size=192, lin_neurons=192, out_neurons=1252)
+        classifier = Classifier(input_size=192, lin_neurons=192, out_neurons=1252)
     else:
         raise Exception("Unknown model name.")
 
     if MODEL_IN_DIR is not None:
-        model, classify = load_model_with_classifier(device, model_name, classify_name)
+        model, classifier = load_model_with_classifier(device, model_name, classifier_name)
 
     model.to(device)
     model.train()
-    classify.to(device)
-    classify.train()
+    classifier.to(device)
+    classifier.train()
 
     optimizer = torch.optim.Adam(
-        [{"params": model.parameters()}, {"params": classify.parameters()}], lr=0.001, weight_decay=0.000002
+        [{"params": model.parameters()}, {"params": classifier.parameters()}], lr=0.001, weight_decay=0.000002
     )
     if MODEL_IN_DIR is not None:
         optimizer.load_state_dict(
@@ -120,7 +120,7 @@ if __name__ == "__main__":
             optimizer.zero_grad()
 
             outputs = model(x)
-            cls_out = classify(outputs).squeeze(1)
+            cls_out = classifier(outputs).squeeze(1)
             loss = criterion(cls_out, batch_labels)
             loss.backward()  # Compute gradients
             optimizer.step()
@@ -148,5 +148,5 @@ if __name__ == "__main__":
                 break
 
         torch.save(model.state_dict(), MODEL_OUT_DIR / f"{model_name}.{epoch}.state_dict")
-        torch.save(classify.state_dict(), MODEL_OUT_DIR / f"{classify_name}.{epoch}.state_dict")
+        torch.save(classifier.state_dict(), MODEL_OUT_DIR / f"{classifier_name}.{epoch}.state_dict")
         torch.save(optimizer.state_dict(), MODEL_OUT_DIR / f"optimizer.{epoch}.state_dict")
