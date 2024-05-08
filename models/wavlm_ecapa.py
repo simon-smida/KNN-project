@@ -19,7 +19,9 @@ class WavLM_ECAPA(torch.nn.Module):
         self.extractor = Wav2Vec2FeatureExtractor.from_pretrained("microsoft/wavlm-base-sv")
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
-        x = x.squeeze()
+        if len(x.shape) != 2:
+            x = x.squeeze(0)
+
         with torch.no_grad():
             x = self.wavlm(x)
         x = self.ecapa(x.last_hidden_state)
@@ -46,7 +48,9 @@ class WavLM_ECAPA_Weighted(WavLM_ECAPA):
         )  # bias=False?
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
-        x = x.squeeze()
+        if len(x.shape) != 2:
+            x = x.squeeze(0)
+
         with torch.no_grad():
             # x.hidden_states returns tensor with dimensions (batch_size, frames, channels=768) in a tuple
             x = self.wavlm(x, output_hidden_states=True)
@@ -55,7 +59,7 @@ class WavLM_ECAPA_Weighted(WavLM_ECAPA):
         x = torch.stack([i for i in x.hidden_states], dim=1)
         vx = x.view(x.shape[0], x.shape[1], -1)
         vx = self.weighted_sum(vx)
-        x = vx.view(x.shape[0], 1, x.shape[2], x.shape[3]).squeeze()
+        x = vx.view(x.shape[0], 1, x.shape[2], x.shape[3]).squeeze(1)
 
         x = self.ecapa(x)  # Returns tensor with dimensions (batch_size, 1, embeddings)
         return x
