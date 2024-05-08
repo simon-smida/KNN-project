@@ -27,10 +27,11 @@ To train the custom version of ECAPA-TDNN, execute `make train`. You can use env
 the job run, namely
 
 - `KNN_DATASET_DIR` with path pointing to the Voxceleb1 dataset,
-- `KNN_MODEL` which model to train (either "ECAPA", "WAVLM_ECAPA", "WAVLM_ECAPA_WEIGHTED")
+- `KNN_MODEL` which model to train (either "ECAPA", "WAVLM_ECAPA", "WAVLM_ECAPA_WEIGHTED", or 
+    "WAVLM_ECAPA_WEIGHTED_UNFIXED")
 - `MODEL_IN_DIR` should be set only if you want to start training from a saved checkpoint, this expects
-  `ecapa_tdnn.state_dict`, `classifier.state_dict` and `optimizer.state_dict` files to be present in the given
-  directory.
+    `ecapa_tdnn.state_dict`, `classifier.state_dict` and `optimizer.state_dict` files to be present in the given
+    directory.
 - `KNN_MODEL_OUT_DIR` where the model, classifier and optimizer checkpoints are stored ater each iteration
 - `KNN_DEBUG` to mark if you're executing in debug mode,
 - `NOF_EPOCHS` for how many epoch you want to train your model,

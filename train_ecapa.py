@@ -12,9 +12,9 @@ from models.ecapa import ECAPA_TDNN, Classifier
 from speechbrain.nnet.losses import LogSoftmaxWrapper, AdditiveAngularMargin
 
 from models.preprocess import get_spectrum_feats
-from models.wavlm_ecapa import WavLM_ECAPA, WavLM_ECAPA_Weighted
+from models.wavlm_ecapa import WavLM_ECAPA, WavLM_ECAPA_Weighted_Fixed, WavLM_ECAPA_Weighted_Unfixed
 
-MODEL = os.getenv("KNN_MODEL", default="ECAPA")
+MODEL = os.getenv("KNN_MODEL", default="WAVLM_ECAPA_WEIGHTED_UNFIXED")
 MODEL_IN_DIR = os.getenv("KNN_MODEL_IN_DIR", default=None)
 MODEL_IN_DIR = None if (MODEL_IN_DIR == "None" or MODEL_IN_DIR is None) else Path(MODEL_IN_DIR)
 MODEL_OUT_DIR = Path(os.getenv("KNN_MODEL_OUT_DIR", default="experiments/models"))
@@ -83,7 +83,10 @@ if __name__ == "__main__":
         model = WavLM_ECAPA(device_str)
         classifier = Classifier(input_size=192, lin_neurons=192, out_neurons=1252)
     elif MODEL == "WAVLM_ECAPA_WEIGHTED":
-        model = WavLM_ECAPA_Weighted(device_str)
+        model = WavLM_ECAPA_Weighted_Fixed(device_str)
+        classifier = Classifier(input_size=192, lin_neurons=192, out_neurons=1252)
+    elif MODEL == "WAVLM_ECAPA_WEIGHTED_UNFIXED":
+        model = WavLM_ECAPA_Weighted_Unfixed(device_str)
         classifier = Classifier(input_size=192, lin_neurons=192, out_neurons=1252)
     else:
         raise Exception("Unknown model name.")
@@ -99,7 +102,7 @@ if __name__ == "__main__":
     optimizer = torch.optim.Adam(
         [{"params": model.parameters()}, {"params": classifier.parameters()}], lr=0.001, weight_decay=0.000002
     )
-    if MODEL_IN_DIR is not None:
+    if MODEL_IN_DIR is not None and MODEL != "WAVLM_ECAPA_WEIGHTED_UNFIXED":
         optimizer.load_state_dict(
             torch.load(MODEL_IN_DIR / "optimizer.state_dict", map_location=device)
         )
