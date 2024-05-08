@@ -13,9 +13,9 @@ from models.ecapa import ECAPA_TDNN, Classifier
 from speechbrain.nnet.losses import LogSoftmaxWrapper, AdditiveAngularMargin
 
 from models.preprocess import get_spectrum_feats
-from models.wavlm_ecapa import WavLM_ECAPA, WavLM_ECAPA_Weighted
+from models.wavlm_ecapa import WavLM_ECAPA, WavLM_ECAPA_Weighted_Fixed, WavLM_ECAPA_Weighted_Unfixed
 
-MODEL = os.getenv("KNN_MODEL", default="WAVLM_ECAPA_WEIGHTED")
+MODEL = os.getenv("KNN_MODEL", default="WAVLM_ECAPA_WEIGHTED_UNFIXED")
 MODEL_IN_DIR = os.getenv("KNN_MODEL_IN_DIR", default=None)
 MODEL_IN_DIR = None if (MODEL_IN_DIR == "None" or MODEL_IN_DIR is None) else Path(MODEL_IN_DIR)
 MODEL_OUT_DIR = Path(os.getenv("KNN_MODEL_OUT_DIR", default="experiments/models"))
@@ -84,7 +84,10 @@ if __name__ == "__main__":
         model = WavLM_ECAPA(device_str)
         classifier = Classifier(input_size=192, lin_neurons=192, out_neurons=1252)
     elif MODEL == "WAVLM_ECAPA_WEIGHTED":
-        model = WavLM_ECAPA_Weighted(device_str)
+        model = WavLM_ECAPA_Weighted_Fixed(device_str)
+        classifier = Classifier(input_size=192, lin_neurons=192, out_neurons=1252)
+    elif MODEL == "WAVLM_ECAPA_WEIGHTED_UNFIXED":
+        model = WavLM_ECAPA_Weighted_Unfixed(device_str)
         classifier = Classifier(input_size=192, lin_neurons=192, out_neurons=1252)
     else:
         raise Exception("Unknown model name.")
@@ -103,7 +106,7 @@ if __name__ == "__main__":
     scheduler = CyclicLR(
         optimizer, base_lr=1e-8, max_lr=1e-3, step_size_up=1000, cycle_momentum=False, mode="triangular2"
     )
-    if MODEL_IN_DIR is not None:
+    if MODEL_IN_DIR is not None and MODEL != "WAVLM_ECAPA_WEIGHTED_UNFIXED":
         optimizer.load_state_dict(
             torch.load(MODEL_IN_DIR / "optimizer.state_dict", map_location=device)
         )
@@ -159,7 +162,7 @@ if __name__ == "__main__":
                 hits_acc = 0
 
             # Stop training after x iterations
-            if DEBUG is True and iteration == 20:
+            if DEBUG is True and iteration == 300:
                 break
 
         torch.save(model.state_dict(), MODEL_OUT_DIR / f"{model_name}.{epoch}.state_dict")

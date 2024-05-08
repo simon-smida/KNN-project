@@ -16,7 +16,7 @@ from torch.utils.data import DataLoader
 from torchaudio.datasets import VoxCeleb1Verification
 from transformers import Wav2Vec2FeatureExtractor, WavLMForXVector
 
-from models.wavlm_ecapa import WavLM_ECAPA, WavLM_ECAPA_Weighted
+from models.wavlm_ecapa import WavLM_ECAPA, WavLM_ECAPA_Weighted_Fixed
 
 MODEL_NAME = os.getenv("KNN_MODEL", default="speechbrain/spkrec-ecapa-voxceleb")
 MODEL_FILENAME = Path(
@@ -191,7 +191,7 @@ if __name__ == "__main__":
         model.load_state_dict(torch.load(MODEL_FILENAME, map_location=device))
         get_embeddings = preprocess.get_embeddings_wavlm
     elif model_name == "WAVLM_ECAPA_WEIGHTED":
-        model = WavLM_ECAPA_Weighted(device_str)
+        model = WavLM_ECAPA_Weighted_Fixed(device_str)
         model.load_state_dict(torch.load(MODEL_FILENAME, map_location=device))
         get_embeddings = preprocess.get_embeddings_wavlm
     else:
