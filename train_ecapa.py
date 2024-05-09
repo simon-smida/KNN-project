@@ -5,6 +5,7 @@ import numpy as np
 import torch
 from torch.utils.data import default_collate
 from torchaudio.datasets import VoxCeleb1Identification
+from torch.optim.lr_scheduler import CyclicLR
 from torch.utils.data import DataLoader
 
 from common.common import DATASET_DIR, SAMPLE_RATE
@@ -14,7 +15,7 @@ from speechbrain.nnet.losses import LogSoftmaxWrapper, AdditiveAngularMargin
 from models.preprocess import get_spectrum_feats
 from models.wavlm_ecapa import WavLM_ECAPA, WavLM_ECAPA_Weighted
 
-MODEL = os.getenv("KNN_MODEL", default="ECAPA")
+MODEL = os.getenv("KNN_MODEL", default="WAVLM_ECAPA_WEIGHTED")
 MODEL_IN_DIR = os.getenv("KNN_MODEL_IN_DIR", default=None)
 MODEL_IN_DIR = None if (MODEL_IN_DIR == "None" or MODEL_IN_DIR is None) else Path(MODEL_IN_DIR)
 MODEL_OUT_DIR = Path(os.getenv("KNN_MODEL_OUT_DIR", default="experiments/models"))
@@ -97,7 +98,7 @@ if __name__ == "__main__":
     classifier.train()
 
     optimizer = torch.optim.Adam(
-        [{"params": model.parameters()}, {"params": classifier.parameters()}], lr=0.001, weight_decay=0.000002
+        [{"params": model.parameters()}, {"params": classifier.parameters()}], lr=0.001, weight_decay=float(2e-5)
     )
     if MODEL_IN_DIR is not None:
         optimizer.load_state_dict(
@@ -105,6 +106,9 @@ if __name__ == "__main__":
         )
 
     criterion = LogSoftmaxWrapper(AdditiveAngularMargin(margin=0.2, scale=30))
+    scheduler = CyclicLR(
+        optimizer, base_lr=1e-8, max_lr=1e-3, step_size_up=1000, cycle_momentum=False, mode="triangular2"
+    )
 
     print(f"Starting training with batch size {BATCH_SIZE} and {NOF_EPOCHS} epochs...")
     print(f"Model trained: {MODEL}")
@@ -129,6 +133,7 @@ if __name__ == "__main__":
             loss = criterion(cls_out, batch_labels)
             loss.backward()  # Compute gradients
             optimizer.step()
+            scheduler.step()
 
             # Compute stats
             loss_acc += loss.item()
@@ -149,9 +154,10 @@ if __name__ == "__main__":
                 hits_acc = 0
 
             # Stop training after x iterations
-            if DEBUG is True and iteration == 300:
+            if DEBUG is True and iteration == 20:
                 break
 
         torch.save(model.state_dict(), MODEL_OUT_DIR / f"{model_name}.{epoch}.state_dict")
         torch.save(classifier.state_dict(), MODEL_OUT_DIR / f"{classifier_name}.{epoch}.state_dict")
         torch.save(optimizer.state_dict(), MODEL_OUT_DIR / f"optimizer.{epoch}.state_dict")
+        torch.save(scheduler.state_dict(), MODEL_OUT_DIR / f"scheduler.{epoch}.state_dict")
