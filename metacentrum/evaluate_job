@@ -59,8 +59,8 @@ source ./venv/bin/activate
 pip install --upgrade pip
 TMPDIR="../tmp" pip install torch==2.0.0 --extra-index-url https://download.pytorch.org/whl/cu113 -r requirements.txt
 
-echo "Make sure dataset is downloaded..."
-make download-voxceleb
+# echo "Make sure dataset is downloaded..."
+# make download-voxceleb
 
 echo "Starting the evaluation..."
 make evaluate
