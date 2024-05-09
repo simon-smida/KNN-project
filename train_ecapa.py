@@ -15,7 +15,7 @@ from speechbrain.nnet.losses import LogSoftmaxWrapper, AdditiveAngularMargin
 from models.preprocess import get_spectrum_feats
 from models.wavlm_ecapa import WavLM_ECAPA, WavLM_ECAPA_Weighted_Fixed, WavLM_ECAPA_Weighted_Unfixed
 
-MODEL = os.getenv("KNN_MODEL", default="WAVLM_ECAPA_WEIGHTED_UNFIXED")
+MODEL = os.getenv("KNN_MODEL", default="WAVLM_ECAPA_WEIGHTED")
 MODEL_IN_DIR = os.getenv("KNN_MODEL_IN_DIR", default=None)
 MODEL_IN_DIR = None if (MODEL_IN_DIR == "None" or MODEL_IN_DIR is None) else Path(MODEL_IN_DIR)
 MODEL_OUT_DIR = Path(os.getenv("KNN_MODEL_OUT_DIR", default="experiments/models"))
