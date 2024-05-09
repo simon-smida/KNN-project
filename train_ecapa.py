@@ -103,15 +103,20 @@ if __name__ == "__main__":
     optimizer = torch.optim.Adam(
         [{"params": model.parameters()}, {"params": classifier.parameters()}], lr=0.001, weight_decay=float(2e-5)
     )
+    scheduler = CyclicLR(
+        optimizer, base_lr=1e-8, max_lr=1e-3, step_size_up=1000, cycle_momentum=False, mode="triangular2"
+    )
     if MODEL_IN_DIR is not None and MODEL != "WAVLM_ECAPA_WEIGHTED_UNFIXED":
         optimizer.load_state_dict(
             torch.load(MODEL_IN_DIR / "optimizer.state_dict", map_location=device)
         )
+        scheduler_filename = MODEL_IN_DIR / "scheduler.state_dict"
+        if os.path.isfile(scheduler_filename):
+            scheduler.load_state_dict(
+                torch.load(scheduler_filename, map_location=device)
+            )
 
     criterion = LogSoftmaxWrapper(AdditiveAngularMargin(margin=0.2, scale=30))
-    scheduler = CyclicLR(
-        optimizer, base_lr=1e-8, max_lr=1e-3, step_size_up=1000, cycle_momentum=False, mode="triangular2"
-    )
 
     print(f"Starting training with batch size {BATCH_SIZE} and {NOF_EPOCHS} epochs...")
     print(f"Model trained: {MODEL}")
