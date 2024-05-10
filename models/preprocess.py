@@ -35,6 +35,8 @@ def get_embeddings(wav: torch.Tensor, model: torch.nn.Module):
 
 
 def get_embeddings_wavlm(wav: torch.Tensor, model: torch.nn.Module):
+    print("get embeddings {wav.is_cuda}")
     x = model.extract_features(wav, wav.shape[2])
+    print(f"get embeddings2 {wav.is_cuda}")
     outputs = model(x)
     return outputs

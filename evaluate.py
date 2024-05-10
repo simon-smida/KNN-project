@@ -132,6 +132,7 @@ def evaluate_on_voxceleb1(
     :param device: should you use GPU for evaluation?
     :return:
     """
+    logger.info(f"Device in eval voxceleb {device}")
     model = model.eval()
     model = model.to(device)
     dataset = VoxCeleb1Verification(root=DATASET_DIR, download=False)
@@ -169,6 +170,7 @@ if __name__ == "__main__":
     logger = logging.getLogger(__name__)
     device_str = "cuda" if torch.cuda.is_available() else "cpu"
     device = torch.device(device_str)
+    print(f"Device string: {device_str}")
 
     logger.info(f"Loading model {MODEL_NAME} from file {MODEL_FILENAME}...")
     model_name = MODEL_NAME
